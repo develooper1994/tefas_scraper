@@ -1,0 +1,48 @@
+   1. TEFAS API Uç Noktaları (`TefasScraper`'dan):
+       * https://www.tefas.gov.tr/api/DB/BindFonKarsilastirma (fetch_fund_list ve screen_funds için)
+       * https://www.tefas.gov.tr/api/DB/GetAllFundAnalyzeData (get_fund_detail için)
+       * https://www.tefas.gov.tr/api/DB/BindHistoryInfo (get_fund_performance için)
+       * https://www.tefas.gov.tr/api/DB/BindHistoryAllocation (get_fund_portfolio için)
+       * https://www.tefas.gov.tr/api/DB/BindComparisonFundReturns (compare_funds için)
+       * https://www.tefas.gov.tr/FonKarsilastirma.aspx (fetch_fund_list içinde oturum oluşturmak için)
+       * https://www.tefas.gov.tr/TarihselVeriler.aspx (Referer başlığı)
+
+   2. KAP API Uç Noktaları (`KAPFundScraper`'dan):
+       * https://www.kap.org.tr (BASE_URL)
+       * https://www.kap.org.tr/tr (TURKISH_BASE_URL)
+       * https://www.kap.org.tr/tr/bildirim-sorgu (DETAILED_SEARCH_BASE_URL)
+       * https://www.kap.org.tr/tr/api/memberDisclosureQuery (NOTIFICATION_SEARCH_API_URL)
+       * https://www.kap.org.tr/tr/api/company/generic/excel/IGS/A (Şirket listesi için EXCEL_URL)
+       * https://www.kap.org.tr/tr/api/company/generic/pdf/IGS/A/sirketler-IGS (Şirket listesi geri dönüşü için PDF_URL)
+       * https://www.kap.org.tr/tr/kfifAllInfoListByItem/KPY97SummaryGrid (get_katilim_finans_uygunluk için)
+       * https://finans.mynet.com/borsa/endeks/ (search_indices için)
+       * https://finans.mynet.com/borsa/endeks/xk100-bist-katilim-100/ (check_katilim_endeksleri için örnek)
+       * https://finans.mynet.com/borsa/endeks/xk050-bist-katilim-50/ (check_katilim_endeksleri için örnek)
+       * https://finans.mynet.com/borsa/endeks/xk030-bist-katilim-30/ (check_katilim_endeksleri için örnek)
+       * https://www.kap.org.tr/tr/Bildirim/{disclosure_index} (rapor URL'leri oluşturmak için)
+
+	"https://www.kap.org.tr/tr/api/disclosures"
+	"https://www.kap.org.tr/tr/api/companies"
+	"https://www.kap.org.tr/tr/api/sectors"
+
+
+  Bu URL'leri listeleyeceğim.
+   - https://www.tefas.gov.tr/api/DB/BindFonKarsilastirma
+   - https://www.tefas.gov.tr/api/DB/GetAllFundAnalyzeData
+   - https://www.tefas.gov.tr/api/DB/BindHistoryInfo
+   - https://www.tefas.gov.tr/api/DB/BindHistoryAllocation
+   - https://www.tefas.gov.tr/api/DB/BindComparisonFundReturns
+   - https://www.tefas.gov.tr/FonKarsilastirma.aspx
+   - https://www.tefas.gov.tr/TarihselVeriler.aspx
+   - https://www.kap.org.tr
+   - https://www.kap.org.tr/tr
+   - https://www.kap.org.tr/tr/bildirim-sorgu
+   - https://www.kap.org.tr/tr/api/memberDisclosureQuery
+   - https://www.kap.org.tr/tr/api/company/generic/excel/IGS/A
+   - https://www.kap.org.tr/tr/api/company/generic/pdf/IGS/A/sirketler-IGS
+   - https://www.kap.org.tr/tr/kfifAllInfoListByItem/KPY97SummaryGrid
+   - https://finans.mynet.com/borsa/endeks/
+   - https://finans.mynet.com/borsa/endeks/xk100-bist-katilim-100/
+   - https://finans.mynet.com/borsa/endeks/xk050-bist-katilim-50/
+   - https://finans.mynet.com/borsa/endeks/xk030-bist-katilim-30/
+   - https://www.kap.org.tr/tr/Bildirim/{disclosure_index
