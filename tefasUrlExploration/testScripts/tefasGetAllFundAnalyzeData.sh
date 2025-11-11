@@ -1,13 +1,14 @@
 #!/bin/bash
 # tefasGetAllFundAnalyzeData.sh
-# Kullanım: ./tefasGetAllFundAnalyzeData.sh <FON_TIPI> <FON_KODU> <BAS_TARIH> <BIT_TARIH>
-# Örnek: ./tefasGetAllFundAnalyzeData.sh YAT TLY 01.01.2025 31.01.2025
+# Kullanım: ./tefasGetAllFundAnalyzeData.sh <FON_TIPI> <FON_KODU> <BAS_TARIH> <BIT_TARIH> [--humanize]
+# Örnek: ./tefasGetAllFundAnalyzeData.sh YAT TLY 01.01.2025 31.01.2025 --humanize
 
 set -u
 FON_TIPI="${1:-YAT}"
 FON_KODU="${2:-TLY}"
 BAS_TARIH="${3:-01.01.2025}"
 BIT_TARIH="${4:-31.01.2025}"
+HUMANIZE="${5:-}"
 
 URL="https://www.tefas.gov.tr/api/DB/GetAllFundAnalyzeData"
 REFERER="https://www.tefas.gov.tr/FonAnaliz.aspx"
@@ -50,20 +51,46 @@ if grep -qiE '<html|<!doctype' "$TMP"; then
   exit 2
 fi
 
-# JSON ise biçimlendir ve stdout'a yaz (geçici dosya daha sonra temizlenir)
-if command -v jq >/dev/null 2>&1; then
-  jq . "$TMP" || { echo "⚠️ jq ile parse edilemedi, ham içerik gösteriliyor:"; cat "$TMP"; }
-elif python -c 'import sys, json
+# Humanize opsiyonu kontrolü
+if [[ "$HUMANIZE" == "--humanize" ]]; then
+  if command -v jq >/dev/null 2>&1; then
+    jq -r '
+      .fundInfo[] as $info |
+      .fundReturn[] as $ret |
+      .fundProfile[] as $prof |
+      "Fon: \($info.FONKODU) - \($info.FONUNVAN)
+Kategori: \($info.FONKATEGORI) (\($info.KATEGORIDERECE) / \($info.KATEGORIFONSAY))
+Yatırımcı Sayısı: \($info.YATIRIMCISAYI) | Pazar Payı: \($info.PAZARPAYI)%
+Risk: \($prof.RISKDEGERI)
+
+Son Fiyat: \($info.SONFIYAT) TL | Günlük Getiri: \($info.GUNLUKGETIRI)%
+Getiri:
+  1 Ay: \($ret.GETIRI1A)% | 3 Ay: \($ret.GETIRI3A)% | 6 Ay: \($ret.GETIRI6A)% | 1 Yıl: \($ret.GETIRI1Y)%
+Portföy Dağılımı:
+\(
+  .fundAllocation[] | "  - \(.KIYMETTIP): \(.PORTFOYORANI)%"
+)
+KAP Link: \($prof.KAPLINK)
+--------------------------------------"
+    ' "$TMP"
+  else
+    echo "⚠️ jq bulunamadı, ham JSON gösteriliyor:"
+    cat "$TMP"
+  fi
+else
+  # Normal pretty-print
+  if command -v jq >/dev/null 2>&1; then
+    jq . "$TMP" || cat "$TMP"
+  elif python -c 'import sys, json
 try:
   json.load(sys.stdin)
   print("OK")
 except Exception:
   sys.exit(1)' < "$TMP" >/dev/null 2>&1; then
-  python -m json.tool < "$TMP"
-else
-  # Ne jq ne de python JSON parse edebildi — ham göster
-  cat "$TMP"
+    python -m json.tool < "$TMP"
+  else
+    cat "$TMP"
+  fi
 fi
 
-# trap cleanup will remove $TMP automatically on exit
 exit 0
