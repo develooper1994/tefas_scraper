@@ -4,22 +4,30 @@
 
 ### Test Scripts
 
-> BindHistoryInfo
-```bash
-./tefasBindHistoryInfo.sh YAT 11.11.2025 11.11.2025 TLY
-./tefasBindHistoryInfo.sh YAT 11.11.2025 11.11.2025 TLY --humanize
-```
+    Fon türleri:
+    - YAT: Menkul Kıymet Yatırım Fonu
+    - EMK: BES(Birey Emeklilik Sistemi) Yatırım Fonu
+    - BYF: Borsa Yatırım Fonu
+    - GYF: Gayrimenkul Yatırım Fonu
+    - GSYF: Giriim Sermayesi Yatırım Fonu
 
-> BindHistoryAllocation
+    > BindHistoryInfo
 
-```bash
-./tefasBindHistoryAllocation.sh YAT 11.11.2025 11.11.2025 TLY
-./tefasBindHistoryAllocation.sh YAT 11.11.2025 11.11.2025 TLY --humanize
-```
+    ```bash
+    ./tefasBindHistoryInfo.sh YAT 11.11.2025 11.11.2025 TLY
+    ./tefasBindHistoryInfo.sh YAT 11.11.2025 11.11.2025 TLY --humanize
+    ```
 
-> GetAllFundAnalyzeData
+    > BindHistoryAllocation
 
-```bash
-./tefasGetAllFundAnalyzeData.sh YAT TLY 11.11.2025 11.11.2025
-./tefasGetAllFundAnalyzeData.sh YAT TLY 11.11.2025 11.11.2025 --humanize
-```
+    ```bash
+    ./tefasBindHistoryAllocation.sh YAT 11.11.2025 11.11.2025 TLY
+    ./tefasBindHistoryAllocation.sh YAT 11.11.2025 11.11.2025 TLY --humanize
+    ```
+
+    > GetAllFundAnalyzeData
+
+    ```bash
+    ./tefasGetAllFundAnalyzeData.sh YAT TLY 11.11.2025 11.11.2025
+    ./tefasGetAllFundAnalyzeData.sh YAT TLY 11.11.2025 11.11.2025 --humanize
+    ```
