@@ -13,7 +13,8 @@ usage() {
   echo "  -c, --fund-code <FUND_CODE>    : Fund code (e.g., TLY, AFA). Required."
   echo "  -s, --start-date <START_DATE> : Start date (DD.MM.YYYY format). Optional."
   echo "  -e, --end-date <END_DATE>     : End date (DD.MM.YYYY format). Optional."
-  echo "  -h, --humanize                : Display output in human-readable format. Optional."
+  echo "  -h, --humanize                : Display output in human-readable format. Optional.
+  -n, --no-date                   : Exclude date from price series output. Useful for piping prices. Optional."
   echo "  -r, --price-range <RANGE>     : Price range. Required if --end-date is provided without --start-date."
   echo "                                  RANGE values: 1H (1 Week), 1M (1 Month), 3M (3 Months), 6M (6 Months), YTD (Year To Date), 1Y (1 Year), 3Y (3 Years), 5Y (5 Years)."
   echo "  --help                        : Show this help message."
@@ -41,11 +42,12 @@ FUND_CODE=""
 START_DATE=""
 END_DATE=""
 HUMANIZE=""
+NO_DATE=""
 PRICE_RANGE=""
 JQ_PRICE_RANGE=""
 
 # Parametreleri ayrıştırma
-TEMP=$(getopt -o "t:c:s:e:hr:" -l "fund-type:,fund-code:,start-date:,end-date:,humanize,price-range:,help" -n "$0" -- "$@")
+TEMP=$(getopt -o "t:c:s:e:hnr:" -l "fund-type:,fund-code:,start-date:,end-date:,humanize,no-date,price-range:,help" -n "$0" -- "$@")
 eval set -- "$TEMP"
 
 while true ; do
@@ -71,6 +73,7 @@ while true ; do
                 *) END_DATE="$2" ; shift 2 ;;
             esac ;;
         -h|--humanize) HUMANIZE="--humanize" ; shift ;;
+        -n|--no-date) NO_DATE="--no-date" ; shift ;;
         -r|--price-range)
             case "$2" in
                 "") echo "Error: --price-range requires a value." ; exit 1 ;;
@@ -192,7 +195,7 @@ fi
 if [[ "$HUMANIZE" == "--humanize" ]]; then
   if command -v jq >/dev/null 2>&1; then
     if [[ -n "$PRICE_RANGE" ]]; then
-      jq -r --arg pr "$PRICE_RANGE" --arg jq_pr "$JQ_PRICE_RANGE" '
+      jq -r --arg pr "$PRICE_RANGE" --arg jq_pr "$JQ_PRICE_RANGE" --arg no_date "$NO_DATE" '
         .fundInfo[0] as $info |
         .fundReturn[0] as $ret |
         .fundProfile[0] as $prof |
@@ -211,7 +214,7 @@ Portfolio Distribution:
 KAP Link: \($prof.KAPLINK)
 Price Series (\($pr)):
 " + (
-  .[("fundPrices" + $jq_pr)] | map("  - Date: \(.TARIH), Price: \(.FIYAT)") | join("\n")
+  .[("fundPrices" + $jq_pr)] | map(if $no_date == "--no-date" then "  - Price: \(.FIYAT)" else "  - Date: \(.TARIH), Price: \(.FIYAT)" end) | join("\n")
 ) + "
 --------------------------------------"
       ' "$TMP"
@@ -244,7 +247,7 @@ else
   # Normal pretty-print or specific price range
   if command -v jq >/dev/null 2>&1; then
     if [[ -n "$PRICE_RANGE" ]]; then
-      jq --arg pr "$PRICE_RANGE" --arg jq_pr "$JQ_PRICE_RANGE" '.[("fundPrices" + $jq_pr)] | map({TARIH: .TARIH, FIYAT: .FIYAT})' "$TMP"
+      jq --arg pr "$PRICE_RANGE" --arg jq_pr "$JQ_PRICE_RANGE" --arg no_date "$NO_DATE" '.[("fundPrices" + $jq_pr)] | map(if $no_date == "--no-date" then {FIYAT: .FIYAT} else {TARIH: .TARIH, FIYAT: .FIYAT} end)' "$TMP"
     else
       jq . "$TMP" || cat "$TMP"
     fi
