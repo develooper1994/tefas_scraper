@@ -247,7 +247,7 @@ else
   # Normal pretty-print or specific price range
   if command -v jq >/dev/null 2>&1; then
     if [[ -n "$PRICE_RANGE" ]]; then
-      jq --arg pr "$PRICE_RANGE" --arg jq_pr "$JQ_PRICE_RANGE" --arg no_date "$NO_DATE" '.[("fundPrices" + $jq_pr)] | map(if $no_date == "--no-date" then {FIYAT: .FIYAT} else {TARIH: .TARIH, FIYAT: .FIYAT} end)' "$TMP"
+      jq --arg pr "$PRICE_RANGE" --arg jq_pr "$JQ_PRICE_RANGE" --arg no_date "$NO_DATE" '.[("fundPrices" + $jq_pr)] | map(if $no_date == "--no-date" then .FIYAT else {TARIH: .TARIH, FIYAT: .FIYAT} end) | (if $no_date == "--no-date" then join(",") else . end)' "$TMP"
     else
       jq . "$TMP" || cat "$TMP"
     fi
