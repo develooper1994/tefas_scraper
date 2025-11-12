@@ -28,9 +28,34 @@
     ./tefasBindHistoryAllocation.sh YAT TLY 11.11.2025 11.11.2025 --humanize
     ```
 
-    > GetAllFundAnalyzeData(daha fazla veri): Fonun tam adı, Portföy büyüklüğünü, Yatırımcı Sayısı, Pay adet, Fon kategorisi, Fonun kategorisindeki fon sayısı, Kategorisindeki derecesi, Günlük getiri, Son fiyat, Pazar payı, fon getirileri(1ay, 3ay, 6ay, 1yıl, 3yıl, 5yıl), fon profili(ışın kodu, ilk ve son işlem saati, min ve max alış ve satış, tefas durumu(tefasa açık kapalı, alıma açık fakat satışa açık, vb.), alış ve satış valörleri, risk değeri), portföy dağılımı(fon kodu, fonun tam ismi, varlıklar ve oranları), fundchange(boş geliyor), fundPrices(eskiden yeniden! fundPrices1H(son 1 haftadaki tüm fiyatların listesi), fundPrices1A(son 1aylık tüm fiyatların listesi), fundPrices3A(son 3aylık tüm fiyatların listesi), fundPrices6A(son 6aylık tüm fiyatların listesi), fundPricesYB(son yıl başından beri tüm fiyatların listesi), fundPrices1Y(son 1yıllık tüm fiyatların listesi), fundPrices3Y(son 3yıllık tüm fiyatların listesi), fundPrices5Y(son 5yıllık tüm fiyatların listesi)), fundComparisonWarning(1,2,3), isFavorite
+    > GetAllFundAnalyzeData (comprehensive data): Fund's full name, Portfolio size, Investor Count, Share quantity, Fund category, Number of funds in its category, Rank in its category, Daily return, Last price, Market share, fund returns (1 month, 3 months, 6 months, 1 year, 3 years, 5 years), fund profile (ISIN code, first and last transaction time, min and max buy and sell, TEFAS status (open/closed for TEFAS, open for buy but closed for sell, etc.), buy and sell value dates, risk value), portfolio distribution (fund code, fund's full name, assets and their ratios), fundchange (empty), fundPrices (again! fundPrices1H (list of all prices in the last 1 week), fundPrices1A (list of all prices in the last 1 month), fundPrices3A (list of all prices in the last 3 months), fundPrices6A (list of all prices in the last 6 months), fundPricesYB (list of all prices since the beginning of the year), fundPrices1Y (list of all prices in the last 1 year), fundPrices3Y (list of all prices in the last 3 years), fundPrices5Y (list of all prices in the last 5 years)), fundComparisonWarning (1,2,3), isFavorite
 
     ```bash
-    ./tefasGetAllFundAnalyzeData.sh YAT TLY 11.11.2025 11.11.2025
-    ./tefasGetAllFundAnalyzeData.sh YAT TLY 11.11.2025 11.11.2025 --humanize
+    # Usage:
+    #   ./tefasGetAllFundAnalyzeData.sh -t <FUND_TYPE> -c <FUND_CODE> [-s <START_DATE>] [-e <END_DATE>] [-h] [-n] [-r <RANGE>]
+    #   Or:
+    #   ./tefasGetAllFundAnalyzeData.sh --fund-type <FUND_TYPE> --fund-code <FUND_CODE> [--start-date <START_DATE>] [--end-date <END_DATE>] [--humanize] [--no-date] [--price-range <RANGE>]
+    #
+    # Parameters:
+    #   -t, --fund-type <FUND_TYPE>    : Fund type (e.g., YAT, EMK). Required.
+    #   -c, --fund-code <FUND_CODE>    : Fund code (e.g., TLY, AFA). Required.
+    #   -s, --start-date <START_DATE> : Start date (DD.MM.YYYY format). Optional.
+    #   -e, --end-date <END_DATE>     : End date (DD.MM.YYYY format). Optional.
+    #   -h, --humanize                : Display output in human-readable format. Optional.
+    #   -n, --no-date                   : Exclude date from price series output. Useful for piping prices. Optional.
+    #   -r, --price-range <RANGE>     : Price range. Required if --end-date is provided without --start-date.
+    #                                   RANGE values: 1H (1 Week), 1M (1 Month), 3M (3 Months), 6M (6 Months), YTD (Year To Date), 1Y (1 Year), 3Y (3 Years), 5Y (5 Years).
+    #   --help                        : Show this help message.
+    #
+    # Date Parameter Logic:
+    #   - If only --start-date (-s) is provided, --end-date (-e) defaults to today's date.
+    #   - If --end-date (-e) is provided, --price-range (-r) becomes mandatory, and the start date is calculated based on this range.
+    #   - If --price-range (-r) is provided and --end-date (-e) is not, --end-date (-e) defaults to today's date.
+    #
+    # Examples:
+    #   ./tefasGetAllFundAnalyzeData.sh -t YAT -c TLY -h -r 1Y
+    #   ./tefasGetAllFundAnalyzeData.sh --fund-type YAT --fund-code TLY --start-date 01.01.2025 --end-date 31.01.2025
+    #   ./tefasGetAllFundAnalyzeData.sh -t YAT -c TLY -e 31.10.2025 -r 3M
+    #   ./tefasGetAllFundAnalyzeData.sh -t YAT -c TLY -s 01.01.2025
+    #   ./tefasGetAllFundAnalyzeData.sh -t YAT -c TLY -r 1M -n # Output: 1787.387020,1802.095808,... (comma-separated prices)
     ```

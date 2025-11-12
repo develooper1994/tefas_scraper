@@ -16,7 +16,12 @@ This project is a collection of scripts for scraping financial data from Turkish
     *   `testScripts/`: Contains the main data scraping scripts.
         *   `tefasBindHistoryInfo.sh`: Fetches general fund information.
         *   `tefasBindHistoryAllocation.sh`: Fetches fund portfolio allocation data.
-        *   `tefasGetAllFundAnalyzeData.sh`: Fetches a comprehensive set of fund analysis data.
+        *   `tefasGetAllFundAnalyzeData.sh`: Fetches a comprehensive set of fund analysis data. This script has been significantly enhanced with:
+            *   **Flexible Date Handling:** Supports `--start-date`, `--end-date`, and `--price-range` for dynamic date calculations. If only `--start-date` is provided, `--end-date` defaults to today. If `--end-date` is provided, `--price-range` becomes mandatory.
+            *   **English Options:** All command-line options and internal variables are now in English for better clarity and consistency. Both long (`--fund-type`) and short (`-t`) options are supported.
+            *   **Help Menu:** A comprehensive help menu is available via `--help` or by running the script without arguments.
+            *   **No Date Output:** A `--no-date` (`-n`) option allows excluding dates from the price series output, useful for piping just the price values (e.g., as comma-separated values in non-humanized mode).
+            *   **API Compatibility:** Internally maps English price range values (e.g., `1M`, `YTD`) to Turkish API equivalents (e.g., `1A`, `YB`) for seamless data retrieval.
     *   `tefas_extractor.py`: A Python script for discovering API endpoints from JavaScript files.
     *   `tefas_fuzzy_probe.py` and `tefas_fuzzy_probe_v2.py`: Python scripts for finding hidden API endpoints by generating and testing URL combinations.
     *   `urlListesi.txt`: A text file containing a list of known API endpoints.
