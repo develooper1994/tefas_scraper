@@ -18,9 +18,9 @@ if [[ $# -lt 4 ]]; then
 fi
 
 FONTIP=$1
-BASTARIH=$2
-BITTARIH=$3
-FONKOD=$4
+FONKOD=$2
+BASTARIH=$3
+BITTARIH=$4
 OPTION=${5:-}
 
 COOKIES_FILE=$(mktemp)

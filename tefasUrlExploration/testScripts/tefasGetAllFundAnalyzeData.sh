@@ -1,4 +1,5 @@
 #!/bin/bash
+#!/usr/bin/env bash
 # tefasGetAllFundAnalyzeData.sh
 # Kullanım: ./tefasGetAllFundAnalyzeData.sh <FON_TIPI> <FON_KODU> <BAS_TARIH> <BIT_TARIH> [--humanize]
 # Örnek: ./tefasGetAllFundAnalyzeData.sh YAT TLY 01.01.2025 31.01.2025 --humanize
@@ -8,6 +9,20 @@ FON_TIPI="${1:-YAT}"
 FON_KODU="${2:-TLY}"
 BAS_TARIH="${3:-01.01.2025}"
 BIT_TARIH="${4:-31.01.2025}"
+set -euo pipefail
+
+# Parametre kontrolü
+if [[ $# -lt 4 ]]; then
+  echo "Hatalı kullanım."
+  echo "Kullanım: $0 <FON_TIPI> <FON_KODU> <BAS_TARIH> <BIT_TARIH> [--humanize]"
+  echo "Örnek: $0 YAT TLY 01.10.2025 31.10.2025"
+  exit 1
+fi
+
+FON_TIPI="$1"
+FON_KODU="$2"
+BAS_TARIH="$3"
+BIT_TARIH="$4"
 HUMANIZE="${5:-}"
 
 URL="https://www.tefas.gov.tr/api/DB/GetAllFundAnalyzeData"
@@ -41,7 +56,7 @@ curl -s "$URL" \
   -H "Sec-Fetch-Mode: $SEC_FETCH_MODE" \
   -H "Sec-Fetch-Site: $SEC_FETCH_SITE" \
   -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8" \
-  --data "fontip=$FON_TIPI&fonkod=$FON_KODU&basTarih=$BAS_TARIH&bitTarih=$BIT_TARIH" \
+  --data "fonTip=$FON_TIPI&fonKod=$FON_KODU&bastarih  =$BAS_TARIH&bittarih=$BIT_TARIH" \
   --compressed -L -k --max-time 25 -o "$TMP"
 
 # Basit WAF / HTML kontrolü: tmp içeriğinde "<html" veya "DOCTYPE" var mı?
