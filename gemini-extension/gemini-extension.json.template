@@ -1,0 +1,13 @@
+{
+  "name": "tefas-scraper",
+  "version": "1.0.0",
+  "description": "TEFAS (Turkey Electronic Fund Distribution Platform) data scraper for Gemini CLI",
+  "mcpServers": {
+    "tefas_scraper": {
+      "command": "VENV_PYTHON_PATH",
+      "args": ["MCP_SERVER_PATH"],
+      "env": {}
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}
