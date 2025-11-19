@@ -21,6 +21,8 @@ pip install -r requirements.txt
 gemini mcp list
 ```
 
+> extension yükleme için gemini extensions install https://github.com/develooper1994/tefas_scraper
+
 ### Kullanım
 
 #### 1. Gemini CLI ile (Önerilen)
