@@ -1,58 +1,197 @@
-# Project Overview
+# TEFAS Scraper - Project Overview
 
-This project is a collection of scripts for scraping financial data from Turkish websites, primarily TEFAS (Turkey Electronic Fund Distribution Platform). The scripts are written in Bash and Python and are designed to discover and interact with the TEFAS API.
+Bu proje, TEFAS (Turkey Electronic Fund Distribution Platform) verilerini çekmek için **Model Context Protocol (MCP) server** ve **CLI tool** sağlar.
 
-## Key Technologies
+## Temel Teknolojiler
 
-*   **Bash:** Used for the main data scraping scripts.
-*   **Python:** Used for API endpoint discovery and probing.
-*   **curl:** Used for making HTTP requests in the Bash scripts.
-*   **jq:** Used for parsing JSON data in the Bash scripts.
+*   **Python 3.12:** Ana programlama dili
+*   **FastMCP:** MCP server implementasyonu  
+*   **Gemini CLI:** MCP client olarak kullanılır
+*   **requests:** TEFAS API çağrıları için HTTP client
+*   **python-dateutil:** Tarih hesaplamaları için
 
-## Project Structure
+## Proje Yapısı
 
-*   `README.md`: Provides an overview of the project and usage instructions for the main scraping scripts.
-*   `tefasUrlExploration/`: Contains scripts for discovering and testing API endpoints.
-    *   `testScripts/`: Contains the main data scraping scripts.
-        *   `tefasBindHistoryInfo.sh`: Fetches general fund information.
-        *   `tefasBindHistoryAllocation.sh`: Fetches fund portfolio allocation data.
-        *   `tefasGetAllFundAnalyzeData.sh`: Fetches a comprehensive set of fund analysis data. This script has been significantly enhanced with:
-            *   **Flexible Date Handling:** Supports `--start-date`, `--end-date`, and `--price-range` for dynamic date calculations. If only `--start-date` is provided, `--end-date` defaults to today. If `--end-date` is provided, `--price-range` becomes mandatory.
-            *   **English Options:** All command-line options and internal variables are now in English for better clarity and consistency. Both long (`--fund-type`) and short (`-t`) options are supported.
-            *   **Help Menu:** A comprehensive help menu is available via `--help` or by running the script without arguments.
-            *   **No Date Output:** A `--no-date` (`-n`) option allows excluding dates from the price series output, useful for piping just the price values (e.g., as comma-separated values in non-humanized mode).
-            *   **API Compatibility:** Internally maps English price range values (e.g., `1M`, `YTD`) to Turkish API equivalents (e.g., `1A`, `YB`) for seamless data retrieval.
-    *   `tefas_extractor.py`: A Python script for discovering API endpoints from JavaScript files.
-    *   `tefas_fuzzy_probe.py` and `tefas_fuzzy_probe_v2.py`: Python scripts for finding hidden API endpoints by generating and testing URL combinations.
-    *   `urlListesi.txt`: A text file containing a list of known API endpoints.
-
-## Building and Running
-
-The project does not have a formal build process. The scripts can be run directly from the command line.
-
-### Running the Scraping Scripts
-
-The main scraping scripts are located in the `tefasUrlExploration/testScripts/` directory. They can be run as follows:
-
-```bash
-./tefasUrlExploration/testScripts/tefasBindHistoryInfo.sh <fonTip> <basTarih> <bitTarih> <fonKod>
-./tefasUrlExploration/testScripts/tefasBindHistoryAllocation.sh <fonTip> <basTarih> <bitTarih> <fonKod>
-./tefasUrlExploration/testScripts/tefasGetAllFundAnalyzeData.sh <fonTip> <basTarih> <bitTarih> <fonKod>
+```
+tefas_scraper/
+├── mcp_server.py              # Ana dosya: MCP server + CLI tool (tek dosya, standalone)
+├── requirements.txt           # Python bağımlılıkları
+├── .gemini/settings.json      # MCP server kaydı (Gemini CLI için)
+├── tefas_scraper_extension/   # Eski implementasyon (opsiyonel FastAPI server)
+│   ├── main.py                # FastAPI alternatif server
+│   └── scraper.py             # TefasScraper sınıfı (artık mcp_server.py içinde)
+└── tefasUrlExploration/       # Legacy bash scriptler (referans için)
 ```
 
-For more detailed usage instructions, refer to the `README.md` file.
+## Ana Dosya: mcp_server.py
 
-### Running the API Discovery Scripts
+**Özellikler:**
+- ✅ Tek standalone dosya
+- ✅ Hem MCP server hem CLI tool olarak çalışır
+- ✅ TefasScraper sınıfı dahil (external dependency yok)
+- ✅ Komut satırından doğrudan kullanılabilir
+- ✅ Gemini CLI ile entegre
 
-The API discovery scripts are located in the `tefasUrlExploration/` directory. They can be run as follows:
+## MCP Araçları (MCP Tools)
+
+Server üç ana araç sunar:
+
+### 1. `analyze_fund`
+Kapsamlı fon analizi verileri (getiriler, portföy dağılımı, risk metrikleri, fiyat serileri).
+
+**Parametreler:**
+- `fund_type`: Fon tipi (ör: YAT, EMK)
+- `fund_code`: Fon kodu (ör: TTE, TLY, AFA)
+- `start_date`: Başlangıç tarihi (DD.MM.YYYY) - opsiyonel
+- `end_date`: Bitiş tarihi (DD.MM.YYYY) - opsiyonel
+- `price_range`: Zaman aralığı (1H, 1M, 3M, 6M, YTD, 1Y, 3Y, 5Y) - opsiyonel
+
+### 2. `get_fund_history_info`
+Tarihsel bağlayıcı bilgiler (fiyat, katılımcı sayısı, portföy büyüklüğü).
+
+**Parametreler:**
+- `fund_code`: Fon kodu
+- `start_date`: Başlangıç tarihi (YYYY-MM-DD)
+- `end_date`: Bitiş tarihi (YYYY-MM-DD)
+- `fund_type`: Fon tipi (varsayılan: "ALL")
+
+### 3. `get_fund_allocation_history`
+Tarihsel portföy dağılım verileri.
+
+**Parametreler:** `get_fund_history_info` ile aynı
+
+## Kurulum (Installation)
 
 ```bash
-python3 tefasUrlExploration/tefas_extractor.py --base <base_url>
-python3 tefasUrlExploration/tefas_fuzzy_probe_v2.py --base <base_url> --wordlist <wordlist_file>
+# 1. Bağımlılıkları yükle
+pip install -r requirements.txt
+
+# 2. MCP server otomatik olarak .gemini/settings.json'a kayıtlı
+
+# 3. Kaydı doğrula
+gemini mcp list
 ```
 
-## Development Conventions
+## Kullanım (Usage)
 
-*   The Bash scripts are well-structured and include error handling.
-*   The Python scripts are used for more complex tasks like API discovery.
-*   The project uses a combination of Bash and Python to achieve its goals.
+### 1. Gemini CLI ile (MCP Server)
+
+```bash
+# Fon analizi
+gemini "TLY fonu için son 1 aylık analiz verilerini getir" -y
+
+# Tarihsel bilgi
+gemini "TTE fonu için 2024-01-01 ve 2024-01-31 arası genel bilgileri getir" -y
+
+# Portföy dağılımı
+gemini "AFA fonunun Ocak 2024 portföy dağılımını göster" -y
+
+# Karşılaştırma
+gemini "TLY ve DFI fonu için son 1 aylık analiz verileriyle karşılaştır" -y
+```
+
+### 2. Komut Satırı (CLI) ile
+
+```bash
+# Fon analizi
+python mcp_server.py --cli analyze --fund-type YAT --fund-code TTE --price-range 1M --pretty
+
+# Tarihsel bilgi
+python mcp_server.py --cli history-info --fund-code TTE --start-date 2024-01-01 --end-date 2024-01-31 --pretty
+
+# Portföy dağılımı
+python mcp_server.py --cli history-allocation --fund-code TTE --start-date 2024-01-01 --end-date 2024-01-31 --pretty
+
+# Help
+python mcp_server.py --help
+```
+
+### 3. Python Modülü Olarak
+
+```python
+# mcp_server.py içindeki TefasScraper sınıfını kullan
+from mcp_server import TefasScraper
+
+scraper = TefasScraper()
+
+# Fon analizi
+result = scraper.get_fund_analysis("YAT", "TTE", price_range="1M")
+
+# Tarihsel bilgi
+result = scraper.get_history("BindHistoryInfo", "TTE", "2024-01-01", "2024-01-31")
+```
+
+## Test Sonuçları
+
+### ✅ CLI Testi
+```bash
+$ python mcp_server.py --cli analyze --fund-type YAT --fund-code TTE --price-range 1M --pretty
+# Başarıyla gerçek TEFAS verileri döndü
+```
+
+### ✅ Gemini CLI Testi
+```bash
+$ gemini "TLY fonu için son 1 aylık analiz verilerini getir" -y
+# Çıktı:
+TERA PORTFÖY BİRİNCİ SERBEST FON (TLY) için son 1 aylık analiz verileri:
+- Son Fiyat: 2646.246782
+- Günlük Getiri: %1.1338
+- 1 Aylık Getiri: %28.979564
+...
+```
+
+## Teknik Detaylar
+
+### Mimari Kararlar
+1. **Tek Dosya:** Tüm fonksiyonalite `mcp_server.py` içinde (standalone)
+2. **Dual Mode:** Aynı dosya hem MCP server hem CLI tool olarak çalışır
+3. **No External Modules:** TefasScraper sınıfı dahili (sadece pip dependencies)
+4. **WAF Protection:** Uygun headers ve referer kullanımı
+5. **Error Handling:** Structured JSON hata yanıtları
+
+### Bağımlılıklar
+```
+fastapi           # Sadece eski main.py için
+uvicorn[standard] # Sadece eski main.py için
+python-multipart  # Sadece eski main.py için
+requests          # ✅ Aktif kullanımda
+python-dateutil   # ✅ Aktif kullanımda
+fastmcp           # ✅ MCP server için
+```
+
+## Legacy Dosyalar
+
+### tefas_scraper_extension/
+- `main.py`: FastAPI server (alternatif, opsiyonel)
+- `scraper.py`: Eski TefasScraper sınıfı (artık mcp_server.py içinde)
+
+### tefasUrlExploration/
+Bash scriptler ve API keşif araçları. Referans için saklanıyor, aktif kullanımda değil.
+
+## Git Workflow
+
+```bash
+# Checkpoint oluştur
+git add .
+git commit -m "feat: MCP server with CLI support - standalone single file"
+
+# Branch'ler arası geçiş
+git checkout -b feature/new-endpoint  # Yeni özellik için
+git checkout main                      # Ana branch'e dön
+git merge feature/new-endpoint         # Başarılı özelliği merge et
+```
+
+## Geliştirme Notları
+
+*   MCP server stdio transport kullanır (Gemini CLI entegrasyonu için)
+*   Tüm API çağrıları WAF koruması içerir
+*   Hata yönetimi structured JSON döndürür
+*   CLI exit code'ları: 0 (başarılı), 1 (hata)
+
+## Başarı Kriterleri
+
+✅ MCP server Gemini CLI ile çalışıyor  
+✅ CLI mode komut satırından çalışıyor  
+✅ Tek standalone dosya (mcp_server.py)  
+✅ Gerçek TEFAS verileri alınıyor  
+✅ Test edildi ve doğrulandı

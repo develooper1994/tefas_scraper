@@ -1,0 +1,12 @@
+{
+  "name": "Tefas Scraper Extension",
+  "description": "An extension for scraping financial data from TEFAS.",
+  "version": "1.0.0",
+  "commands": [
+    {
+      "command": "/tefas",
+      "description": "Access the TEFAS scraper tools.",
+      "mcp_server_config": "settings.json"
+    }
+  ]
+}

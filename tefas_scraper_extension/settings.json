@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "tefas-scraper": {
+      "command": "python3",
+      "args": [
+        "main.py",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "INFO",
+        "PYTHONPATH": "."
+      },
+      "transportType": "stdio",
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
