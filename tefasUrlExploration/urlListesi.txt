@@ -3,7 +3,9 @@
        * https://www.tefas.gov.tr/api/DB/GetAllFundAnalyzeData (get_fund_detail için)
        * https://www.tefas.gov.tr/api/DB/BindHistoryInfo (get_fund_performance için)
        * https://www.tefas.gov.tr/api/DB/BindHistoryAllocation (get_fund_portfolio için)
-       * https://www.tefas.gov.tr/api/DB/BindComparisonFundReturns (compare_funds için)
+       * https://www.tefas.gov.tr/api/DB/BindComparisonFundReturns (compare_fund_returns için)
+       * https://www.tefas.gov.tr/api/DB/BindComparisonManagementFees (compare_fund_management_fees için)
+       * https://www.tefas.gov.tr/api/DB/BindComparisonFundSizes (compare_fund_sizes için)
        * https://www.tefas.gov.tr/FonKarsilastirma.aspx (fetch_fund_list içinde oturum oluşturmak için)
        * https://www.tefas.gov.tr/TarihselVeriler.aspx (Referer başlığı)
 
@@ -32,6 +34,8 @@
    - https://www.tefas.gov.tr/api/DB/BindHistoryInfo
    - https://www.tefas.gov.tr/api/DB/BindHistoryAllocation
    - https://www.tefas.gov.tr/api/DB/BindComparisonFundReturns
+   - https://www.tefas.gov.tr/api/DB/BindComparisonManagementFees
+   - https://www.tefas.gov.tr/api/DB/BindComparisonFundSizes
    - https://www.tefas.gov.tr/FonKarsilastirma.aspx
    - https://www.tefas.gov.tr/TarihselVeriler.aspx
    - https://www.kap.org.tr
@@ -45,4 +49,4 @@
    - https://finans.mynet.com/borsa/endeks/xk100-bist-katilim-100/
    - https://finans.mynet.com/borsa/endeks/xk050-bist-katilim-50/
    - https://finans.mynet.com/borsa/endeks/xk030-bist-katilim-30/
-   - https://www.kap.org.tr/tr/Bildirim/{disclosure_index
+   - https://www.kap.org.tr/tr/Bildirim/disclosure_index
