@@ -1,0 +1,6 @@
+Task complete summary:
+- Created venv, installed requirements, ran pytest: 3 passed.
+- Implemented TLS toggle and retry/backoff in `mcp_server.py` and extension `scraper.py`.
+- Added `pytest` to requirements and `tests/test_scraper.py`.
+- Updated `README.md` and added `CHANGELOG.md`.
+- Commits: ad95f61, ee68339 on branch main.
