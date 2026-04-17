@@ -127,4 +127,4 @@ Projede bir `LICENSE` dosyası bulunmaktadır; lisans koşullarına uyun.
 
 ---
 
-Not: README taslağı güncellendi; onay verirseniz bu içerik kalıcı olarak `README.md` üzerinde bırakılacaktır.
+**Not**: Bash scriptler `tefasUrlExploration/` klasöründe referans için saklanmaktadır.
