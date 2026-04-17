@@ -4,3 +4,4 @@ python-multipart
 requests
 python-dateutil
 fastmcp
+pytest>=7.0

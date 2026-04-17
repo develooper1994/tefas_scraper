@@ -1,196 +1,130 @@
-# TEFAS Scraper
+## TEFAS Scraper
 
-TEFAS (Turkey Electronic Fund Distribution Platform) verilerini çekmek için **MCP Server** ve **CLI Tool**.
+TEFAS (Türkiye Elektronik Fon Dağılım Platformu) verilerini çekmek, analiz etmek ve Gemini/CLI üzerinden erişim sağlamak için hazırlanmış bir araç seti.
 
-## Özellikler
+Özet
+-----
+- MCP sunucusu ve komut satırı arayüzü (CLI) sağlar.
+- TEFAS'ın açık API uç noktalarından fon analizleri, tarihsel veriler ve karşılaştırmalı raporlar alır.
 
-- ✅ **MCP Server**: Gemini CLI ile entegre Model Context Protocol sunucusu
-- ✅ **CLI Tool**: Komut satırından doğrudan kullanılabilir
-- ✅ **Tek Dosya**: Tüm fonksiyonalite `mcp_server.py` içinde
-- ✅ **Gerçek Zamanlı Veri**: TEFAS API'den canlı veriler
+Özellikler
+---------
+- MCP (FastMCP) araçları: `analyze_fund`, `get_fund_history_info`, `get_fund_allocation_history`, `compare_fund_returns`, `compare_fund_sizes`, `compare_fund_fees`.
+- CLI modunda doğrudan çağrılabilir: `python mcp_server.py --cli <command>`.
+- Alternatif HTTP API (FastAPI) örneği: `tefas_scraper_extension/main.py`.
 
-## Hızlı Başlangıç
+Gereksinimler
+------------
+- Python 3.12+ (önerilir)
+- Python bağımlılıkları: `pip install -r requirements.txt`
 
-### Kurulum
-
+Kurulum
+-------
 ```bash
-# 1. Bağımlılıkları yükle
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-
-# 2. MCP server'ı doğrula
-gemini mcp list
 ```
 
-> extension yükleme için gemini extensions install https://github.com/develooper1994/tefas_scraper
-
-### Kullanım
-
-#### 1. Gemini CLI ile (Önerilen)
+Hızlı Başlangıç
+---------------
+- MCP sunucusu (stdio transport, Gemini ile entegrasyon için):
 
 ```bash
-# Fon analizi
-gemini "TLY fonu için son 1 aylık analiz verilerini getir" -y
-
-# Karşılaştırma
-gemini "TLY ve DFI fonu için son 1 aylık analiz verileriyle karşılaştır" -y
-
-# Tarihsel bilgi
-gemini "TTE fonu için 2024-01-01 ve 2024-01-31 arası genel bilgileri getir" -y
+python mcp_server.py
 ```
 
-#### 2. Komut Satırı ile
+- CLI örnekleri:
 
 ```bash
-# Fon analizi
+# Fon analizi (price range ile)
 python mcp_server.py --cli analyze --fund-type YAT --fund-code TTE --price-range 1M --pretty
 
-# Tarihsel bilgi
+# Tarihsel bilgi (history-info)
 python mcp_server.py --cli history-info --fund-code TTE --start-date 2024-01-01 --end-date 2024-01-31 --pretty
 
-# Portföy dağılımı
+# Portföy dağılımı geçmişi
 python mcp_server.py --cli history-allocation --fund-code TTE --start-date 2024-01-01 --end-date 2024-01-31 --pretty
 
-# Yardım
-python mcp_server.py --help
+# Getiri karşılaştırması
+python mcp_server.py --cli compare-returns --fund-type YAT --periods 0,0,0,1,0,0,0 --pretty
+
+# Büyüklük karşılaştırması (DD.MM.YYYY formatıyla)
+python mcp_server.py --cli compare-sizes --start-date 01.01.2024 --end-date 31.01.2024 --pretty
 ```
 
-#### 3. Python Modülü Olarak
-
-```python
-from mcp_server import TefasScraper
-
-scraper = TefasScraper()
-
-# Fon analizi
-result = scraper.get_fund_analysis("YAT", "TTE", price_range="1M")
-print(result)
-
-# Tarihsel bilgi
-result = scraper.get_history("BindHistoryInfo", "TTE", "2024-01-01", "2024-01-31")
-print(result)
-```
-
-## MCP Araçları
-
-Server üç ana araç sunar:
-
-### `analyze_fund`
-Kapsamlı fon analizi (getiriler, portföy dağılımı, risk metrikleri, fiyat serileri)
-
-**Parametreler:**
-- `fund_type`: Fon tipi (YAT, EMK, BYF, GYF, GSYF)
-- `fund_code`: Fon kodu (ör: TTE, TLY, AFA)
-- `start_date`: Başlangıç tarihi (DD.MM.YYYY) - opsiyonel
-- `end_date`: Bitiş tarihi (DD.MM.YYYY) - opsiyonel
-- `price_range`: Zaman aralığı (1H, 1M, 3M, 6M, YTD, 1Y, 3Y, 5Y) - opsiyonel
-
-### `get_fund_history_info`
-Tarihsel genel bilgiler (fiyat, katılımcı sayısı, portföy büyüklüğü)
-
-**Parametreler:**
-- `fund_code`: Fon kodu
-- `start_date`: Başlangıç (YYYY-MM-DD)
-- `end_date`: Bitiş (YYYY-MM-DD)
-- `fund_type`: Fon tipi (varsayılan: "ALL")
-
-### `get_fund_allocation_history`
-Tarihsel portföy dağılımı
-
-**Parametreler:** `get_fund_history_info` ile aynı
-
-## Fon Türleri
-
-- **YAT**: Menkul Kıymet Yatırım Fonu
-- **EMK**: BES (Bireysel Emeklilik Sistemi) Yatırım Fonu
-- **BYF**: Borsa Yatırım Fonu
-- **GYF**: Gayrimenkul Yatırım Fonu
-- **GSYF**: Girişim Sermayesi Yatırım Fonu
-
-## Dönen Veriler
-
-### BindHistoryInfo (Genel Bilgi)
-- Unix timestamp (saniye)
-- Son fiyat bilgisi
-- Fonun tam adı
-- Tedavüldeki pay sayısı
-- Yatırımcı sayısı
-- Portföy büyüklüğü
-
-### BindHistoryAllocation (Portföy Dağılımı)
-- Unix timestamp (saniye)
-- Fonun tam adı
-- Varlık dağılımı (null olanlar hariç)
-
-### GetAllFundAnalyzeData (Kapsamlı Analiz)
-- Fon bilgileri (tam ad, kategori, sıralama)
-- Portföy büyüklüğü ve yatırımcı sayısı
-- Günlük getiri ve son fiyat
-- Getiri oranları (1A, 3A, 6A, 1Y, 3Y, 5Y)
-- Risk değeri
-- Portföy dağılımı
-- Fiyat serileri (1H, 1A, 3A, 6A, YB, 1Y, 3Y, 5Y)
-- KAP linki
-
-## Tarih Formatları
-
-- **CLI ve analyze_fund**: `DD.MM.YYYY` (örn: `15.11.2025`)
-- **history araçları**: `YYYY-MM-DD` (örn: `2025-11-15`)
-
-## Zaman Aralıkları (Price Range)
-
-- `1H`: Son 1 hafta
-- `1M`: Son 1 ay
-- `3M`: Son 3 ay
-- `6M`: Son 6 ay
-- `YTD`: Yıl başından bugüne
-- `1Y`: Son 1 yıl
-- `3Y`: Son 3 yıl
-- `5Y`: Son 5 yıl
-
-## Proje Yapısı
-
-```
-tefas_scraper/
-├── mcp_server.py              # Ana dosya (MCP server + CLI tool)
-├── requirements.txt           # Python bağımlılıkları
-├── .gemini/settings.json      # MCP server kaydı
-├── tefas_scraper_extension/   # Eski implementasyon (opsiyonel)
-└── tefasUrlExploration/       # Legacy bash scriptler (referans)
-```
-
-## Test Edilmiş Örnekler
+- FastAPI (alternatif HTTP) çalıştırma:
 
 ```bash
-# ✅ Başarılı Test 1: Gemini CLI
-$ gemini "TLY fonu için son 1 aylık analiz verilerini getir" -y
-# Çıktı: TERA PORTFÖY BİRİNCİ SERBEST FON (TLY)
-#        Son Fiyat: 2646.246782, Günlük Getiri: %1.1338, 1 Aylık: %28.979564
-
-# ✅ Başarılı Test 2: CLI Tool
-$ python mcp_server.py --cli analyze --fund-type YAT --fund-code TTE --price-range 1M --pretty
-# Gerçek TEFAS verileri JSON formatında
+uvicorn tefas_scraper_extension.main:app --reload --port 8000
 ```
 
-## Bağımlılıklar
+API / MCP Araçları
+------------------
+- `analyze_fund` — parametreler: `fund_type` (zorunlu), `fund_code` (zorunlu), `start_date` (DD.MM.YYYY), `end_date` (DD.MM.YYYY), `price_range` (1H,1M,3M,6M,YTD,1Y,3Y,5Y).
+- `get_fund_history_info` — parametreler: `fund_code`, `start_date` (YYYY-MM-DD), `end_date` (YYYY-MM-DD), `fund_type` (opsiyonel).
+- `get_fund_allocation_history` — aynı format ve zorunluluklar `get_fund_history_info` ile uyumlu.
+- `compare_fund_returns` — `fund_type` ve `periods` (ör. `1,1,1,1,1,1,1`).
+- `compare_fund_sizes` — tarihler DD.MM.YYYY formatında beklenir.
+- `compare_fund_fees` — `fund_type` parametresi.
 
+Tarih Formatlarına Dikkat
+------------------------
+- `analyze_fund` ve bazı karşılaştırma araçları DD.MM.YYYY tarih formatı bekler.
+- `history-*` uç noktaları YYYY-MM-DD formatı bekler.
+Karışık formatlar geçersiz girişlere veya `ValueError` hatalarına yol açabilir. Lütfen örnekleri dikkatle takip edin.
+
+Test Etme / CLI Kombinasyonlarını Deneme
+---------------------------------------
+Aşağıdaki küçük komut dosyası, CLI komutlarını ve tipik argüman kombinasyonlarını çalıştırıp hata veren kombinasyonları yakalamaya uygundur. Bu, gerçek TEFAS çağrıları gerçekleştireceği için dikkatle ve kısıtlı sıklıkta çalıştırınız.
+
+```bash
+#!/usr/bin/env bash
+set +e
+echo "Basit CLI testi başlıyor..."
+commands=(
+	"python mcp_server.py --cli analyze --fund-type YAT --fund-code TTE --price-range 1M --pretty"
+	"python mcp_server.py --cli analyze --fund-code TTE --price-range 1M --pretty"  # eksik fund-type -> parser hatası
+	"python mcp_server.py --cli history-info --fund-code TTE --start-date 2024-01-01 --end-date 2024-01-31 --pretty"
+	"python mcp_server.py --cli history-info --fund-code TTE --start-date 01.01.2024 --end-date 31.01.2024 --pretty" # yanlış format -> ValueError beklenir
+	"python mcp_server.py --cli compare-sizes --start-date 01.01.2024 --end-date 31.01.2024 --pretty"
+)
+
+for cmd in "${commands[@]}"; do
+	echo "=> $cmd"
+	eval $cmd
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "FAILED (exit $rc): $cmd"
+	else
+		echo "OK: $cmd"
+	fi
+	echo "---"
+done
 ```
-requests          # HTTP client
-python-dateutil   # Tarih hesaplamaları
-fastmcp           # MCP server
-```
 
-## Teknik Detaylar
+Not: Bu script hataları yakalayacak, ancak asıl amaç hangi argüman kombinasyonunun servis veya kodda hata çıkardığını gözlemlemektir. Eğer `history-info` için DD.MM.YYYY formatı gönderirseniz `ValueError` alırsınız; bu davranış bilinmektedir.
 
-- **Dil**: Python 3.12+
-- **Transport**: stdio (MCP)
-- **WAF Koruması**: Otomatik header ve referer yönetimi
-- **Hata Yönetimi**: Structured JSON responses
-- **Session Yönetimi**: Persistent HTTP session
+Troubleshooting (Hızlı İpuçları)
+--------------------------------
+- Eğer `ValueError: Invalid date format` görüyorsanız, doğru formatı kullandığınızdan emin olun (endpoint'e bağlı olarak DD.MM.YYYY veya YYYY-MM-DD).
+- `Failed to decode JSON` veya aldığınız cevap HTML içeriyorsa (WAF/robot engellemesi), istek frekansı veya User-Agent nedeniyle servis tarafından engellenmiş olabilirsiniz.
+- Boş yanıt (`Empty response from server`) dönerse parametreleri kontrol edin.
+- `BrokenPipeError` ile karşılaşırsanız, çıktıyı küçük parçalara bölün veya `--pretty` seçeneğini kaldırın.
 
-## Lisans
+Geliştirme ve Katkı
+-------------------
+- Test eklemek için `pytest` ve `responses`/`requests-mock` kullanılması önerilir.
+- Önerilen ilk PR'lar: (1) `requirements.txt` için versiyon sabitleme, (2) test iskeleti (`tests/`), (3) TLS ve retry iyileştirmesi.
 
-Bu proje açık kaynaklıdır.
+Test Sonuçları (Yerel)
+----------------------
+Testler yerel venv içinde çalıştırıldı. Sonuç: `3 passed`.
+
+Lisans
+-----
+Projede bir `LICENSE` dosyası bulunmaktadır; lisans koşullarına uyun.
 
 ---
 
-**Not**: Legacy bash scriptler `tefasUrlExploration/` klasöründe referans için saklanmaktadır.
+Not: README taslağı güncellendi; onay verirseniz bu içerik kalıcı olarak `README.md` üzerinde bırakılacaktır.

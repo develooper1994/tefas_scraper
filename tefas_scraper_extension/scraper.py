@@ -1,12 +1,16 @@
 
 import json
+import os
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import requests
 import urllib3
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-# Disable insecure request warnings for self-signed certificates
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+# Disable insecure request warnings only if TLS verification is explicitly disabled
+if not os.getenv('TEFAS_VERIFY_TLS', 'true').lower() in ('1', 'true', 'yes'):
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class TefasScraper:
@@ -16,12 +20,22 @@ class TefasScraper:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         })
 
+        # TLS verification and retry/backoff
+        self.verify_tls = os.getenv('TEFAS_VERIFY_TLS', 'true').lower() in ('1', 'true', 'yes')
+        self.session.verify = self.verify_tls
+        max_retries = int(os.getenv('TEFAS_MAX_RETRIES', '3'))
+        backoff = float(os.getenv('TEFAS_BACKOFF_FACTOR', '0.3'))
+        retry = Retry(total=max_retries, backoff_factor=backoff, status_forcelist=(429, 500, 502, 503, 504), allowed_methods=["GET", "POST"])
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+
     def _make_request(self, url, data=None):
         try:
             if data:
-                response = self.session.post(url, data=data, timeout=25, verify=False)
+                response = self.session.post(url, data=data, timeout=25, verify=self.verify_tls)
             else:
-                response = self.session.get(url, timeout=10, verify=False)
+                response = self.session.get(url, timeout=10, verify=self.verify_tls)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
